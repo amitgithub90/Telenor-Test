@@ -77,7 +77,7 @@
     $(document).ready(function () {
 
        alert("Document Load");
-        
+        Init();
     });
 
     
@@ -218,6 +218,54 @@
 
     }
 
+    function Upload() {
+        alert("Upload");
+            if (_appoints.length > 0) {
+                var ajaxRequest = $.ajax({
+                    url: "../AppointmentDtls/UploadAllAppointments/",
+                    type: "POST",
+                    data: { oappoints: _appoints },
+                    datatype: "json",
+                    beforeSend: fuction(){
+
+                },
+                });
+            ajaxRequest.done(function (data) {
+                alert("Successfully saved.");
+
+            });
+            ajaxRequest.fail(function (jqXHR, textStatus) {
+                alert("error found");
+                alert('error title', 'error info', 'error');
+            });
+            }
+            else { 
+                alert("No data found."); 
+            }
+    }
+    function Init() {
+        alert("Init");
+        _appoint = NewAppointmentObj();
+
+        $("#btnUpload").click(function () {
+            Upload();
+        });
+        $("#input").on("change", function (e){
+            var file = e.target.files[0];
+            if (!file) return;
+
+            var FR = new FileReader();
+            FR.onload = function (e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var firstsheet = workbook.Sheets[workbook.SheetNames[0]];
+                var result = XLSX.utils.sheet_to_json(firstsheet, { header: 1 });
+            };
+            FR.readAsArrayBuffer(file);
+            $("#input").val("");
+        });
+
+    }
 
 </script>
 
