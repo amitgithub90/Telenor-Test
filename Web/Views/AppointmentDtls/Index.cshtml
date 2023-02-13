@@ -76,59 +76,10 @@
     
     $(document).ready(function () {
 
-        $(".datetimepicker").each(function () {
-            $(this).datetimepicker();
-        });
-        Init();
+       alert("Document Load");
+        
     });
 
-    function Init() {
-        _appoint = NewAppintmentObj();
-
-        $("#btnUpload").click(function () {
-            Upload();
-        });
-        $("#input").on("change", function (e)){
-            var file = e.target.files[0];
-            if (!file) return;
-
-            var FR = new FileReader();
-            FR.onload = function (e) {
-                var data = new Uint8Array(e.target.result);
-                var workbook = XLSX.read(data, { type: array });
-                var firstsheet = workbook.Sheets[workbook.SheetNames[0]];
-                var result = XLSX.utils.sheet_to_json(firstsheet, { header: 1 });
-            };
-            FR.readAsArrayBuffer(file);
-            $("#input").val("");
-        });
-
-    }
-
-    function Upload() {
-        if (_appoints.length > 0) {
-            var ajaxrequest = $.ajax({
-                url: "../AppointmentDtls/UploadAllAppointments",
-                type: "POST",
-                data: { oappoints: _appoints },
-                datatype: JSON,
-                beforSend: fuction(){
-
-            },
-                });
-        ajaxrequest.done(function (data) {
-            alert("Successfully saved.");
-
-        });
-        ajaxrequest.fail(function (jqXHR, textStatus) {
-            alert("error found");
-            alert('error title', 'error info', 'error');
-        });
-    }
-            else { alert("No data found."); }
-        }
-
-    
     
 
     function LoadAll() 
@@ -143,8 +94,10 @@
 
                 alert(JSON.stringify(data)); 
                 alert(data.appid);
-                $.each(data, function (i, item) {  
-                $("#tblAppointment tbody").append("<tr>"
+                $("#tblAppointment tr").remove();
+                $.each(data, function (i, item) {
+
+                    $("#tblAppointment tbody").append("<tr id=" + item.appId + ">"
                         + "<td>" + item.appId + "</td>"
                         + "<td>" + item.name + "</td>"
                         + "<td>" + item.email + "</td>"
@@ -159,7 +112,7 @@
                         + "</tr>");
                         });
             }, //End of AJAX Success function  
-
+            
             failure: function (data) {  
                 alert(data.responseText);  
             }, //End of AJAX failure function  
@@ -197,7 +150,7 @@
             dataType: "json",  
             success: function (data){  
 
-                alert(JSON.stringify(data)); 
+                 
                 LoadAll();
             }, //End of AJAX Success function  
 
@@ -217,22 +170,19 @@
         if (aapId > 0) {
 
             $.ajax({
-                type: "GET",
-                url: "/AppointmentDtls/GetAppointment",
+                type: 'GET',
+                url: '/AppointmentDtls/GetAppointment?appId=' + aapId,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
-
-                    alert(JSON.stringify(data));
-
-                    $.each(data, function (i, item) {
-                        $("#txtName").val(item.name);
-                        $("#txtEmail").val(item.email);
-                        $("#txtPhoneNo").val(item.phoneNo);
-                        $("#txtStartDate").val(item.startDate);
-                        $("#txtEndDate").val(item.endDate);
-                        $("#txtDate").val(item.date);
-                    });
+                    
+                    $("#txtName").val(data.name);
+                    $("#txtEmail").val(data.email);
+                    $("#txtPhoneNo").val(data.phoneNo);
+                    $("#txtStartDate").val(data.startDate);
+                    $("#txtEndDate").val(data.endDate);
+                    $("#txtDate").val(data.date);
+                    
                 }, //End of AJAX Success function
 
                 failure: function (data) {
@@ -257,9 +207,8 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 success: function (data) {
-                    if ($("#tblAppointment tr").length > 2) {
-                        $("#tblAppointment").closest('tr').remove();
-                    }
+                    alert("delete");
+                    $("#" + aapId).remove();
                 },
                 error: function (ex) {
                     console.log("Error in operation");
