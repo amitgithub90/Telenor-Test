@@ -17,6 +17,12 @@ namespace Web.Controllers
             return View();
         }
 
+        //public JsonResult UploadAppointments(List<AppointmentDetails> _appointmentdtls)
+        //{
+        //    _Ap
+        //}
+
+
         [HttpGet]
 
         public async Task <List<AppointmentDetails>> GetAppointmentDetails()
@@ -53,7 +59,7 @@ namespace Web.Controllers
                 httpClient.BaseAddress = new Uri("https://localhost:44372");
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                using (var response = await httpClient.GetAsync("api/GetAppointment" + appId))
+                using (var response = await httpClient.GetAsync("api/GetAppointment/" + appId))
                 {
                     string apiResponse = await response.Content.ReadAsStringAsync();
                     _appointmentDetail = JsonConvert.DeserializeObject<AppointmentDetails>(apiResponse);
@@ -96,14 +102,40 @@ namespace Web.Controllers
                 httpClient.BaseAddress = new Uri("https://localhost:44372");
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                using (var response = await httpClient.DeleteAsync("/api/RemoveAppointment" + appId))
+                using (var response = await httpClient.DeleteAsync("/api/RemoveAppointment/" + appId))
+
                 {
                     message = await response.Content.ReadAsStringAsync();
-                    
+
                 }
             }
 
             return message;
         }
+
+
+        [HttpPost]
+
+        public async Task<AppointmentDetails> UploadAllAppointments(AppointmentDetails appointmentDetails)
+        {
+            _appointmentDetail = new AppointmentDetails();
+            using (var httpClient = new HttpClient(_clientHandler))
+            {
+                httpClient.BaseAddress = new Uri("https://localhost:44372");
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                StringContent content = new StringContent(JsonConvert.SerializeObject(appointmentDetails), Encoding.UTF8, "application/json");
+                using (var response = await httpClient.PostAsync("/api/UploadAppointments", content))
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
+                    _appointmentDetail = JsonConvert.DeserializeObject<AppointmentDetails>(apiResponse);
+
+                }
+            }
+
+            return _appointmentDetail;
+        }
+
+
     }
 }

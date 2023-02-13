@@ -16,13 +16,8 @@ namespace API.Repository
 
         Task UpdateAppointment(Appointment appointment);
 
-        //Task<IEnumerable<Appointment>> GetAppoinments();
-        //Task<Appointment> GetAppoinment(int? id);
+        Task<List<Appointment>> UploadAppointments(List<Appointment> appointment);
 
-        //Task<Appointment> PutAppoinment(int? id, Appointment appoinment);
-
-        //Task<Appointment> PostAppoinment(Appointment appoinment);
-
-        //bool DeleteAppoinment(int? id);
+       
     }
 }

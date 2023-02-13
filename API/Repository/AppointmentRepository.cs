@@ -1,5 +1,6 @@
 ﻿using API.Database;
 using API.Models;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
@@ -91,6 +92,12 @@ namespace API.Repository
                 //Commit the transaction
                 await _db.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Appointment>> UploadAppointments(List<Appointment> appointment)
+        {
+            _db.BulkInsert(appointment);
+            return appointment;
         }
     }
 }

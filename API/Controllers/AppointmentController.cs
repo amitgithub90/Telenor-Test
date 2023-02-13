@@ -17,6 +17,8 @@ namespace API.Controllers
         {
             appointmentRepository = _appointmentRepository;
         }
+
+        List<Appointment> _Appointment = new List<Appointment>();
         
         [HttpGet]
         [Route("/api/GetAppointments")]
@@ -39,7 +41,7 @@ namespace API.Controllers
 
         }
 
-        
+
 
         [HttpGet]
         [Route("/api/GetAppointment")]
@@ -95,10 +97,9 @@ namespace API.Controllers
 
             return BadRequest();
         }
-
-        [HttpPost]
+        [HttpDelete]
         [Route("/api/RemoveAppointment")]
-        public async Task<IActionResult> RemoveAppointment(int? appId)
+        public async Task<IActionResult> RemoveAppointment( int appId)
         {
             int result = 0;
 
@@ -124,7 +125,7 @@ namespace API.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPut]
         [Route("/api/UpdateAppointment")]
         public async Task<IActionResult> UpdateAppointment([FromBody] Appointment model)
         {
@@ -148,6 +149,18 @@ namespace API.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpPost]
+        [Route("/api/UploadAppointments")]
+        public async Task<JsonResult> UploadAppointments(List<Appointment> model)
+        {
+
+
+            _Appointment = await appointmentRepository.UploadAppointments(model);
+             return Json(_Appointment);
+                    
+           
         }
     }
 }

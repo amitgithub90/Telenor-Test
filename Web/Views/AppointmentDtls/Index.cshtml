@@ -3,8 +3,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 
 
+<!-- CSS CDN -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" />
+<!-- datetimepicker jQuery CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js">
+</script>
 
 
 <h2>Create an Appointment</h2>
@@ -21,13 +29,13 @@
   <label for="PhoneNo">PhoneNo:</label> <input id="txtPhoneNo" class="form-control" name="PhoneNo">
 </div>
 <div class="form-group">
-  <label for="StartDate">StartDate:</label> <input id="txtStartDate" class="form-control" name="StartDate">
+    <label for="StartDate">StartDate:</label> <input id="txtStartDate" class="form-control datetimepicker" name="StartDate">
 </div>
 <div class="form-group">
-  <label for="EndDate">EndDate:</label> <input id="txtEndDate" class="form-control" name="EndDate">
+    <label for="EndDate">EndDate:</label> <input id="txtEndDate" class="form-control datetimepicker" name="EndDate">
 </div>
 <div class="form-group">
-  <label for="Date">Date:</label> <input id="txtDate" class="form-control" name="Date">
+    <label for="Date">Date:</label> <input id="txtDate" class="form-control datetimepicker"  name="Date">
 </div><br>
 <div class="text-center panel-body">
   <button id="btnSave" onclick="SaveAppoinment()" type="button" class="btn btn-sm btn-primary">Create New Appointment</button>
@@ -35,6 +43,10 @@
 
 <button onclick="LoadAll()" class="btn btn-primary">Load Appointment</button>
 <br>
+<div style="margin-bottom 20px;">
+    <input type="file" id="input" accept=".xls,.xlsx" style="float:left;"/>
+    <button id="btnUpload" type="button" class="btn btn-sm btn-primary" style="margin-right:10px; float:right">Upload</button>
+    </div>
 <h2>Appointment List:</h2>
 <table id="tblAppointment" class="table table-sm table-striped table-bordered m-2">
     <thead>
@@ -52,14 +64,73 @@
     <tbody></tbody>
 </table>
 
-<script type="text/javascript">
+
+
+    <script type="text/javascript" >
+       
+
+    var _appoints =[],
+    _appoint = null,
+    _headers =[];
 
     
     $(document).ready(function () {
 
-       alert("hi");
-       
+        $(".datetimepicker").each(function () {
+            $(this).datetimepicker();
+        });
+        Init();
     });
+
+    function Init() {
+        _appoint = NewAppintmentObj();
+
+        $("#btnUpload").click(function () {
+            Upload();
+        });
+        $("#input").on("change", function (e)){
+            var file = e.target.files[0];
+            if (!file) return;
+
+            var FR = new FileReader();
+            FR.onload = function (e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: array });
+                var firstsheet = workbook.Sheets[workbook.SheetNames[0]];
+                var result = XLSX.utils.sheet_to_json(firstsheet, { header: 1 });
+            };
+            FR.readAsArrayBuffer(file);
+            $("#input").val("");
+        });
+
+    }
+
+    function Upload() {
+        if (_appoints.length > 0) {
+            var ajaxrequest = $.ajax({
+                url: "../AppointmentDtls/UploadAllAppointments",
+                type: "POST",
+                data: { oappoints: _appoints },
+                datatype: JSON,
+                beforSend: fuction(){
+
+            },
+                });
+        ajaxrequest.done(function (data) {
+            alert("Successfully saved.");
+
+        });
+        ajaxrequest.fail(function (jqXHR, textStatus) {
+            alert("error found");
+            alert('error title', 'error info', 'error');
+        });
+    }
+            else { alert("No data found."); }
+        }
+
+    
+    
+
     function LoadAll() 
     { 
         alert("hi load");
@@ -82,8 +153,8 @@
                         + "<td>" + item.endDate + "</td>"
                         + "<td>" + item.date + "</td>"
                         + "<td>"
-                        + "     <button class='btn-success' onclick='Edit(" + item.appid + ")' style='margin-right:5px;'>Edit</button>"
-                        + "     <button class='btn-danger' onclick='Delete(" + item.appid + ")'>Delete</button>"
+                        + "     <button class='btn-success' onclick='Edit(" + item.appId + ")' style='margin-right:5px;'>Edit</button>"
+                        + "     <button class='btn-danger' onclick='Delete(" + item.appId + ")'>Delete</button>"
                         + "</td>"
                         + "</tr>");
                         });
@@ -141,46 +212,44 @@
         
     }
 
-
-    
-
-    function Edit(aapId) 
-    { 
+    function Edit(aapId) {
         alert("Edit");
         if (aapId > 0) {
 
-            $.ajax({  
-            type: "GET",  
-            url: "/AppointmentDtls/GetAppointment",  
-            contentType: "application/json; charset=utf-8",  
-            dataType: "json",  
-            success: function (data){  
+            $.ajax({
+                type: "GET",
+                url: "/AppointmentDtls/GetAppointment",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
 
-                alert(JSON.stringify(data)); 
+                    alert(JSON.stringify(data));
 
-                $.each(data, function (i, item) {  
-                    $("#txtName").val(item.name);
-                    $("#txtEmail").val(item.email);
-                    $("#txtPhoneNo").val(item.phoneNo);
-                    $("#txtStartDate").val(item.startDate);
-                    $("#txtEndDate").val(item.endDate);
-                    $("#txtDate").val(item.date);
-            }, //End of AJAX Success function  
+                    $.each(data, function (i, item) {
+                        $("#txtName").val(item.name);
+                        $("#txtEmail").val(item.email);
+                        $("#txtPhoneNo").val(item.phoneNo);
+                        $("#txtStartDate").val(item.startDate);
+                        $("#txtEndDate").val(item.endDate);
+                        $("#txtDate").val(item.date);
+                    });
+                }, //End of AJAX Success function
 
-            failure: function (data) {  
-                alert(data.responseText);  
-            }, //End of AJAX failure function  
-            error: function (data) {  
-                alert(data.responseText);  
-            } //End of AJAX error function  
+                failure: function (data) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function
+                error: function (data) {
+                    alert(data.responseText);
+                } //End of AJAX error function
 
-        });
+            });
 
-       }
+        }
+
     }
 
-     function Delete(aapId) {
-         alert("Delete");
+    function Delete(aapId) {
+        alert("Delete");
         if (aapId > 0) {
             $.ajax({
                 type: 'DELETE',
@@ -189,8 +258,8 @@
                 dataType: 'json',
                 success: function (data) {
                     if ($("#tblAppointment tr").length > 2) {
-                            $("#tblAppointment").closest('tr').remove();
-                        }
+                        $("#tblAppointment").closest('tr').remove();
+                    }
                 },
                 error: function (ex) {
                     console.log("Error in operation");
@@ -199,7 +268,6 @@
         }
 
     }
-    
 
 
 </script>
