@@ -45,7 +45,7 @@ namespace API.Controllers
 
         [HttpGet]
         [Route("/api/GetAppointment")]
-        public async Task<IActionResult> GetAppointment(int? appId)
+        public async Task<IActionResult> GetAppointment(int appId)
         {
             if (appId == null)
             {
@@ -115,7 +115,7 @@ namespace API.Controllers
                 {
                     return NotFound();
                 }
-                return Ok();
+                return Ok("Deleted"+ appId);
             }
             catch (Exception)
             {

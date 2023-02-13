@@ -59,7 +59,7 @@ namespace Web.Controllers
                 httpClient.BaseAddress = new Uri("https://localhost:44372");
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                using (var response = await httpClient.GetAsync("api/GetAppointment/" + appId))
+                using (var response = await httpClient.GetAsync("api/GetAppointment?appId=" + appId))
                 {
                     string apiResponse = await response.Content.ReadAsStringAsync();
                     _appointmentDetail = JsonConvert.DeserializeObject<AppointmentDetails>(apiResponse);
@@ -102,7 +102,7 @@ namespace Web.Controllers
                 httpClient.BaseAddress = new Uri("https://localhost:44372");
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                using (var response = await httpClient.DeleteAsync("/api/RemoveAppointment/" + appId))
+                using (var response = await httpClient.DeleteAsync("/api/RemoveAppointment?appId=" + appId))
 
                 {
                     message = await response.Content.ReadAsStringAsync();
