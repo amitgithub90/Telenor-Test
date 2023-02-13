@@ -77,10 +77,59 @@
     $(document).ready(function () {
 
        alert("Document Load");
-        Init();
+       
     });
 
-    
+    //Upload File//
+    function Upload() {
+        alert("Upload");
+            if (_appoints.length > 0) {
+                var ajaxRequest = $.ajax({
+                    url: "../AppointmentDtls/UploadAllAppointments/",
+                    type: "POST",
+                    data: { oappoints: _appoints },
+                    datatype: "json",
+                    beforeSend: fuction(){
+
+                },
+                });
+            ajaxRequest.done(function (data) {
+                alert("Successfully saved.");
+
+            });
+            ajaxRequest.fail(function (jqXHR, textStatus) {
+                alert("error found");
+                alert('error title', 'error info', 'error');
+            });
+            }
+            else { 
+                alert("No data found."); 
+            }
+    }
+    function Init() {
+        alert("Init");
+        _appoint = NewAppointmentObj();
+
+        $("#btnUpload").click(function () {
+            Upload();
+        });
+        $("#input").on("change", function (e){
+            var file = e.target.files[0];
+            if (!file) return;
+
+            var FR = new FileReader();
+            FR.onload = function (e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var firstsheet = workbook.Sheets[workbook.SheetNames[0]];
+                var result = XLSX.utils.sheet_to_json(firstsheet, { header: 1 });
+            };
+            FR.readAsArrayBuffer(file);
+            $("#input").val("");
+        });
+
+    }
+    //Upload File//
 
     function LoadAll() 
     { 
@@ -94,7 +143,7 @@
 
                 alert(JSON.stringify(data)); 
                 alert(data.appid);
-                $("#tblAppointment tr").remove();
+                
                 $.each(data, function (i, item) {
 
                     $("#tblAppointment tbody").append("<tr id=" + item.appId + ">"
@@ -126,20 +175,20 @@
     function SaveAppoinment() 
     { 
         alert("Save");
-            var txtName = $("#txtName");
-            var txtEmail = $("#txtEmail");
-            var txtPhoneNo = $("#txtPhoneNo");
-            var txtStartDate = $("#txtStartDate");
-            var txtEndDate = $("#txtEndDate");
-            var txtDate = $("#txtDate");
+            var txtName = $("#txtName").val();
+            var txtEmail = $("#txtEmail").val();
+            var txtPhoneNo = $("#txtPhoneNo").val();
+            var txtStartDate = $("#txtStartDate").val();
+            var txtEndDate = $("#txtEndDate").val();
+            var txtDate = $("#txtDate").val();
            
             var _appointments = {};
-            _appointments.Name = txtName.val();
-            _appointments.Email = txtEmail.val();
-            _appointments.PhoneNo = txtPhoneNo.val();
-            _appointments.StartDate = txtStartDate.val();
-            _appointments.EndDate = txtEndDate.val();
-            _appointments.Date = txtDate.val();
+            _appointments.Name = txtName;
+            _appointments.Email = txtEmail;
+            _appointments.PhoneNo = txtPhoneNo;
+            _appointments.StartDate = txtStartDate;
+            _appointments.EndDate = txtEndDate;
+            _appointments.Date = txtDate;
             alert(_appointments);
             alert("hi load");
         $.ajax({  
@@ -218,54 +267,7 @@
 
     }
 
-    function Upload() {
-        alert("Upload");
-            if (_appoints.length > 0) {
-                var ajaxRequest = $.ajax({
-                    url: "../AppointmentDtls/UploadAllAppointments/",
-                    type: "POST",
-                    data: { oappoints: _appoints },
-                    datatype: "json",
-                    beforeSend: fuction(){
-
-                },
-                });
-            ajaxRequest.done(function (data) {
-                alert("Successfully saved.");
-
-            });
-            ajaxRequest.fail(function (jqXHR, textStatus) {
-                alert("error found");
-                alert('error title', 'error info', 'error');
-            });
-            }
-            else { 
-                alert("No data found."); 
-            }
-    }
-    function Init() {
-        alert("Init");
-        _appoint = NewAppointmentObj();
-
-        $("#btnUpload").click(function () {
-            Upload();
-        });
-        $("#input").on("change", function (e){
-            var file = e.target.files[0];
-            if (!file) return;
-
-            var FR = new FileReader();
-            FR.onload = function (e) {
-                var data = new Uint8Array(e.target.result);
-                var workbook = XLSX.read(data, { type: 'array' });
-                var firstsheet = workbook.Sheets[workbook.SheetNames[0]];
-                var result = XLSX.utils.sheet_to_json(firstsheet, { header: 1 });
-            };
-            FR.readAsArrayBuffer(file);
-            $("#input").val("");
-        });
-
-    }
+    
 
 </script>
 
